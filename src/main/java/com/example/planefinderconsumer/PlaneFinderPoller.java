@@ -13,11 +13,13 @@ class PlaneFinderPoller {
     private WebClient client = WebClient.create("http://localhost:7634/aircraft");
 
     private final RedisConnectionFactory connectionFactory;
-    private final RedisOperations<String, Aircraft> redisOperations;
+    private final AircraftRepository repository;
+    //private final RedisOperations<String, Aircraft> redisOperations;
 
-    PlaneFinderPoller(RedisConnectionFactory connectionFactory, RedisOperations<String, Aircraft> redisOperations) {
+    PlaneFinderPoller(RedisConnectionFactory connectionFactory, AircraftRepository repository) {
         this.connectionFactory = connectionFactory;
-        this.redisOperations = redisOperations;
+        this.repository = repository;
+        //this.redisOperations = redisOperations;
     }
 
     @Scheduled(fixedRate = 1000)
@@ -29,11 +31,13 @@ class PlaneFinderPoller {
                 .bodyToFlux(Aircraft.class)
                 .filter(plane -> !plane.getReg().isEmpty())
                 .toStream()
-                .forEach(ac -> redisOperations.opsForValue().set(ac.getReg(), ac));
+                .forEach(repository::save);
+        //.forEach(ac -> redisOperations.opsForValue().set(ac.getReg(), ac));
 
-        redisOperations.opsForValue()
+        repository.findAll().forEach(System.out::println);
+        /*redisOperations.opsForValue()
                 .getOperations()
                 .keys("*")
-                .forEach(ac -> System.out.println(redisOperations.opsForValue().get(ac)));
+                .forEach(ac -> System.out.println(redisOperations.opsForValue().get(ac)));*/
     }
 }
