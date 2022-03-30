@@ -24,7 +24,7 @@ public class PlanefinderconsumerApplication {
 
 		return template;
 	}
-	
+
 	public static void main(String[] args) {
 		SpringApplication.run(PlanefinderconsumerApplication.class, args);
 	}
